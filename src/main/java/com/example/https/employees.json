@@ -1,0 +1,28 @@
+[
+  {
+    "id": 1,
+    "name": "John Doe",
+    "salary": 5000.0,
+    "position": {
+      "id": 1,
+      "name": "Manager"
+    },
+    "department": {
+      "id": 1,
+      "name": "Sales"
+    }
+  },
+  {
+    "id": 2,
+    "name": "Jane Smith",
+    "salary": 4000.0,
+    "position": {
+      "id": 2,
+      "name": "Developer"
+    },
+    "department": {
+      "id": 2,
+      "name": "IT"
+    }
+  }
+]
