@@ -10,6 +10,8 @@ import com.example.https.Repository.EmployeeRepository;
 import com.example.https.Repository.PositionRepository;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
@@ -17,11 +19,15 @@ import org.springframework.stereotype.Service;
 import java.awt.print.Pageable;
 import java.util.List;
 import java.util.Optional;
+
 import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
 public class EmployeeServiceImpl implements EmployeeService {
+
+    private static final Logger logger = (Logger) LoggerFactory.getLogger(EmployeeServiceImpl.class);
+
 
     private final EmployeeRepository employeeRepository;
     private final PositionRepository positionRepository;
@@ -30,6 +36,7 @@ public class EmployeeServiceImpl implements EmployeeService {
 
     @Override
     public List<EmployeeDTO> getAllEmployees() {
+        logger.info("Invoking getAllEmployees method");
         List<Employee> employees = employeeRepository.findAll();
         return employees.stream()
                 .map(this::convertToDTO)
@@ -38,6 +45,7 @@ public class EmployeeServiceImpl implements EmployeeService {
 
     @Override
     public EmployeeDTO getEmployeeById(int id) {
+        logger.info("Invoking getEmployeeById method with id: " + id);
         Employee employee = employeeRepository.findById(id)
                 .orElseThrow(() -> new EmployeeNotFoundException("Employee not found with id: " + id));
         return convertToDTO(employee);
@@ -45,14 +53,20 @@ public class EmployeeServiceImpl implements EmployeeService {
 
     @Override
     public void createEmployee(EmployeeDTO employeeDTO) {
+        logger.info("Invoking createEmployee method with employee: " + employeeDTO);
         Employee employee = convertToEntity(employeeDTO);
         employeeRepository.save(employee);
     }
 
     @Override
     public void updateEmployee(int id, EmployeeDTO employeeDTO) {
+        logger.info("Invoking updateEmployee method with id: " + id + ", employee: " + employeeDTO);
         Employee existingEmployee = employeeRepository.findById(id)
-                .orElseThrow(() -> new EmployeeNotFoundException("Employee not found with id: " + id));
+                .orElseThrow(() -> {
+                    String errorMessage = "Employee not found with id: " + id;
+                    logger.error(errorMessage);
+                    return new EmployeeNotFoundException(errorMessage);
+                });
 
         Employee updatedEmployee = convertToEntity(employeeDTO);
         updatedEmployee.setId(existingEmployee.getId());
@@ -62,8 +76,13 @@ public class EmployeeServiceImpl implements EmployeeService {
 
     @Override
     public void deleteEmployee(int id) {
+        logger.info("Invoking deleteEmployee method with id: " + id);
         Employee employee = employeeRepository.findById(id)
-                .orElseThrow(() -> new EmployeeNotFoundException("Employee not found with id: " + id));
+                .orElseThrow(() -> {
+                    String errorMessage = "Employee not found with id: " + id;
+                    logger.error(errorMessage);
+                    return new EmployeeNotFoundException(errorMessage);
+                });
 
         employeeRepository.delete(employee);
     }
@@ -78,8 +97,13 @@ public class EmployeeServiceImpl implements EmployeeService {
 
     @Override
     public List<EmployeeDTO> getEmployeesByPosition(int positionId) {
+        logger.info("Invoking getEmployeesByPosition method with positionId: " + positionId);
         Position position = positionRepository.findById(positionId)
-                .orElseThrow(() -> new PositionNotFoundException("Position not found with id: " + positionId));
+                .orElseThrow(() -> {
+                    String errorMessage = "Position not found with id: " + positionId;
+                    logger.error(errorMessage);
+                    return new PositionNotFoundException(errorMessage);
+                });
 
         List<Employee> employees = position.getEmployees();
         return employees.stream()
@@ -88,12 +112,14 @@ public class EmployeeServiceImpl implements EmployeeService {
     }
     @Override
     public List<EmployeeDTO> getEmployeesWithHighestSalary() {
+        logger.info("Invoking getEmployeesWithHighestSalary method");
         List<Employee> employees = employeeRepository.getEmployeesWithHighestSalary();
         return mapToEmployeeDTOs(employees);
     }
 
     @Override
     public List<EmployeeDTO> findEmployeesByPosition(String position) {
+        logger.info("Invoking findEmployeesByPosition method with position: " + position);
         List<Employee> employees = employeeRepository.findEmployeesByPosition(position);
         return mapToEmployeeDTOs(employees);
     }
@@ -106,12 +132,18 @@ public class EmployeeServiceImpl implements EmployeeService {
 
     @Override
     public EmployeeFullInfoDTO getEmployeeFullInfoById(int id) {
+        logger.info("Invoking getEmployeeFullInfoById method with id: " + id);
         Optional<EmployeeFullInfoDTO> employeeFullInfo = employeeRepository.getEmployeeFullInfoById(id);
-        return employeeFullInfo.orElseThrow(() -> new EmployeeNotFoundException("Employee not found with id: " + id));
+        return employeeFullInfo.orElseThrow(() -> {
+            String errorMessage = "Employee not found with id: " + id;
+            logger.error(errorMessage);
+            return new EmployeeNotFoundException(errorMessage);
+        });
     }
 
     @Override
     public Page<EmployeeDTO> getAllEmployeesByPage(int page) {
+        logger.info("Invoking getAllEmployeesByPage method with page: " + page);
         Pageable pageable = (Pageable) PageRequest.of(page, 10);
         Page<Employee> employeePage = employeeRepository.findAllEmployees((org.springframework.data.domain.Pageable) pageable);
         return employeePage.map(this::convertToDTO);
