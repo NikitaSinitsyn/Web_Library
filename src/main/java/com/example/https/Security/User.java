@@ -16,10 +16,12 @@ public class User {
     @Column(nullable = false, unique = true)
     private String username;
     private String password;
+    @Column(name = "isenabled")
     private boolean isEnabled;
-    @JoinColumn(name = "user_id")
-    @OneToMany(fetch = FetchType.EAGER)
 
+
+    @OneToMany(fetch = FetchType.EAGER)
+    @JoinColumn(name = "user_id")
     private List<Authority> authorityList;
 
     @Override
