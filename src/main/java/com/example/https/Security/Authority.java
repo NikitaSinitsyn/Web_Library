@@ -12,5 +12,8 @@ public class Authority {
     private Long Id;
     @Column(nullable = false, unique = true)
     private String role;
+    @ManyToOne
+    @JoinColumn(name = "user_id")
+    private User user;
 
 }
