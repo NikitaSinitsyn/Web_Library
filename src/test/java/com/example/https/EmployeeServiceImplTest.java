@@ -1,5 +1,4 @@
 package com.example.https;
-
 import com.example.https.CustomExceptionHandler.EmployeeNotFoundException;
 import com.example.https.DTO.EmployeeDTO;
 import com.example.https.DTO.EmployeeFullInfoDTO;
@@ -23,9 +22,10 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-import static org.junit.Assert.assertEquals;
+
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
+import static org.junit.Assert.assertEquals;
 
 @RunWith(MockitoJUnitRunner.class)
 public class EmployeeServiceImplTest {
@@ -44,6 +44,7 @@ public class EmployeeServiceImplTest {
 
     @Before
     public void setup() {
+
         Mockito.when(modelMapper.map(any(Employee.class), any())).thenReturn(new EmployeeDTO());
         Mockito.when(modelMapper.map(any(EmployeeDTO.class), any())).thenReturn(new Employee());
         Mockito.when(positionRepository.findById(anyInt())).thenReturn(Optional.of(new Position()));
@@ -55,7 +56,6 @@ public class EmployeeServiceImplTest {
         List<Employee> employees = new ArrayList<>();
         employees.add(new Employee());
         employees.add(new Employee());
-
 
         Mockito.when(employeeRepository.findAll()).thenReturn(employees);
 
@@ -71,7 +71,6 @@ public class EmployeeServiceImplTest {
         Employee employee = new Employee();
         employee.setId(employeeId);
 
-
         Mockito.when(employeeRepository.findById(employeeId)).thenReturn(Optional.of(employee));
 
         EmployeeDTO employeeDTO = employeeService.getEmployeeById(employeeId);
@@ -84,7 +83,6 @@ public class EmployeeServiceImplTest {
 
         EmployeeDTO employeeDTO = new EmployeeDTO();
         employeeDTO.setName("John Doe");
-
 
         employeeService.createEmployee(employeeDTO);
 
@@ -101,12 +99,9 @@ public class EmployeeServiceImplTest {
         Employee existingEmployee = new Employee();
         existingEmployee.setId(employeeId);
 
-
         Mockito.when(employeeRepository.findById(employeeId)).thenReturn(Optional.of(existingEmployee));
 
-
         employeeService.updateEmployee(employeeId, employeeDTO);
-
 
         Mockito.verify(employeeRepository).save(any(Employee.class));
     }
@@ -115,7 +110,6 @@ public class EmployeeServiceImplTest {
     public void testUpdateEmployee_ThrowsException() {
 
         Mockito.when(employeeRepository.findById(anyInt())).thenReturn(Optional.empty());
-
 
         employeeService.updateEmployee(1, new EmployeeDTO());
     }
@@ -126,7 +120,6 @@ public class EmployeeServiceImplTest {
         int employeeId = 1;
         Employee existingEmployee = new Employee();
         existingEmployee.setId(employeeId);
-
 
         Mockito.when(employeeRepository.findById(employeeId)).thenReturn(Optional.of(existingEmployee));
 
@@ -145,15 +138,14 @@ public class EmployeeServiceImplTest {
 
     @Test
     public void testGetEmployeesByPosition() {
-        int positionId = 1;
-        Position position = new Position();
-        position.setId(positionId);
 
+        int positionId = 1;
+        Position position = Mockito.mock(Position.class);
         List<Employee> employees = new ArrayList<>();
         employees.add(new Employee());
         employees.add(new Employee());
 
-        Mockito.when(positionRepository.findById(Mockito.eq(positionId))).thenReturn(Optional.of(position));
+        Mockito.when(positionRepository.findById(positionId)).thenReturn(Optional.of(position));
         Mockito.when(position.getEmployees()).thenReturn(employees);
 
         List<EmployeeDTO> employeeDTOs = employeeService.getEmployeesByPosition(positionId);
@@ -163,6 +155,7 @@ public class EmployeeServiceImplTest {
 
     @Test
     public void testGetEmployeesWithHighestSalary() {
+
         List<Employee> employees = new ArrayList<>();
         employees.add(new Employee());
         employees.add(new Employee());
@@ -176,7 +169,7 @@ public class EmployeeServiceImplTest {
 
     @Test
     public void testFindEmployeesByPosition() {
-
+        // Create test data
         String position = "Manager";
         List<Employee> employees = new ArrayList<>();
         employees.add(new Employee());
@@ -191,6 +184,7 @@ public class EmployeeServiceImplTest {
 
     @Test
     public void testGetEmployeeFullInfoById() {
+
         int employeeId = 1;
         EmployeeFullInfoDTO employeeFullInfoDTO = new EmployeeFullInfoDTO();
         employeeFullInfoDTO.setId(employeeId);
@@ -215,7 +209,6 @@ public class EmployeeServiceImplTest {
 
         int page = 0;
         Page<Employee> employeePage = new PageImpl<>(new ArrayList<>());
-
 
         Mockito.when(employeeRepository.findAllEmployees(any())).thenReturn(employeePage);
 

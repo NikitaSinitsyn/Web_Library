@@ -43,6 +43,7 @@ public class EmployeeServiceImpl implements EmployeeService {
                 .collect(Collectors.toList());
     }
 
+
     @Override
     public EmployeeDTO getEmployeeById(int id) {
         logger.info("Invoking getEmployeeById method with id: " + id);
@@ -50,7 +51,6 @@ public class EmployeeServiceImpl implements EmployeeService {
                 .orElseThrow(() -> new EmployeeNotFoundException("Employee not found with id: " + id));
         return convertToDTO(employee);
     }
-
     @Override
     public void createEmployee(EmployeeDTO employeeDTO) {
         logger.info("Invoking createEmployee method with employee: " + employeeDTO);
@@ -144,7 +144,7 @@ public class EmployeeServiceImpl implements EmployeeService {
     @Override
     public Page<EmployeeDTO> getAllEmployeesByPage(int page) {
         logger.info("Invoking getAllEmployeesByPage method with page: " + page);
-        Pageable pageable = (Pageable) PageRequest.of(page, 10);
+        PageRequest pageable =  PageRequest.of(page, 10);
         Page<Employee> employeePage = employeeRepository.findAllEmployees((org.springframework.data.domain.Pageable) pageable);
         return employeePage.map(this::convertToDTO);
     }
