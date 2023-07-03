@@ -12,6 +12,7 @@ import lombok.Setter;
 @Setter
 @EqualsAndHashCode
 public class EmployeeDTO {
+    private int id;
     private String name;
     private double salary;
     private Position position;
