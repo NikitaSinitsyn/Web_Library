@@ -16,7 +16,6 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
-import java.awt.print.Pageable;
 import java.util.List;
 import java.util.Optional;
 
@@ -34,15 +33,15 @@ public class EmployeeServiceImpl implements EmployeeService {
     private final ModelMapper modelMapper;
 
 
+
     @Override
     public List<EmployeeDTO> getAllEmployees() {
         logger.info("Invoking getAllEmployees method");
         List<Employee> employees = employeeRepository.findAll();
         return employees.stream()
-                .map(this::convertToDTO)
+                .map(this::mapToEmployeeDTO)
                 .collect(Collectors.toList());
     }
-
 
     @Override
     public EmployeeDTO getEmployeeById(int id) {
@@ -52,14 +51,15 @@ public class EmployeeServiceImpl implements EmployeeService {
         return convertToDTO(employee);
     }
     @Override
-    public void createEmployee(EmployeeDTO employeeDTO) {
+    public EmployeeDTO createEmployee(EmployeeDTO employeeDTO) {
         logger.info("Invoking createEmployee method with employee: " + employeeDTO);
         Employee employee = convertToEntity(employeeDTO);
         employeeRepository.save(employee);
+        return convertToDTO(employee);
     }
 
     @Override
-    public void updateEmployee(int id, EmployeeDTO employeeDTO) {
+    public EmployeeDTO updateEmployee(int id, EmployeeDTO employeeDTO) {
         logger.info("Invoking updateEmployee method with id: " + id + ", employee: " + employeeDTO);
         Employee existingEmployee = employeeRepository.findById(id)
                 .orElseThrow(() -> {
@@ -72,6 +72,7 @@ public class EmployeeServiceImpl implements EmployeeService {
         updatedEmployee.setId(existingEmployee.getId());
 
         employeeRepository.save(updatedEmployee);
+        return employeeDTO;
     }
 
     @Override
@@ -148,8 +149,10 @@ public class EmployeeServiceImpl implements EmployeeService {
         Page<Employee> employeePage = employeeRepository.findAllEmployees((org.springframework.data.domain.Pageable) pageable);
         return employeePage.map(this::convertToDTO);
     }
+
     private EmployeeDTO mapToEmployeeDTO(Employee employee) {
         EmployeeDTO employeeDTO = new EmployeeDTO();
+        employeeDTO.setId(employee.getId());
         employeeDTO.setName(employee.getName());
         employeeDTO.setSalary(employee.getSalary());
         employeeDTO.setPosition(employee.getPosition());
