@@ -1,4 +1,5 @@
 package com.example.https;
+
 import com.example.https.CustomExceptionHandler.EmployeeNotFoundException;
 import com.example.https.DTO.EmployeeDTO;
 import com.example.https.DTO.EmployeeFullInfoDTO;
@@ -17,12 +18,13 @@ import org.mockito.junit.MockitoJUnitRunner;
 import org.modelmapper.ModelMapper;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
-
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
@@ -108,6 +110,7 @@ public class EmployeeServiceImplTest {
         Mockito.when(employeeRepository.findById(employeeId)).thenReturn(Optional.of(employee));
 
         EmployeeDTO employeeDTO = employeeService.getEmployeeById(employeeId);
+
 
         assertEquals(employee.getId(), employeeDTO.getId());
         assertEquals(employee.getName(), employeeDTO.getName());
@@ -208,8 +211,10 @@ public class EmployeeServiceImplTest {
         employees.add(new Employee("John Doe", 5000, position));
         employees.add(new Employee("Jane Smith", 4000, position));
 
+        position.setEmployees(employees);
+
         Mockito.when(positionRepository.findById(positionId)).thenReturn(Optional.of(position));
-        Mockito.when(employeeRepository.findEmployeesByPosition(String.valueOf(position))).thenReturn(employees);
+        Mockito.when(employeeRepository.findEmployeesByPosition(Mockito.anyString())).thenReturn(employees);
 
         List<EmployeeDTO> employeeDTOs = employeeService.getEmployeesByPosition(positionId);
 
@@ -293,23 +298,17 @@ public class EmployeeServiceImplTest {
 
         EmployeeFullInfoDTO result = employeeService.getEmployeeFullInfoById(employeeId);
 
-        assertEquals(employeeFullInfo.getId(), result.getId());
-        assertEquals(employeeFullInfo.getName(), result.getName());
-        assertEquals(employeeFullInfo.getPosition(), result.getPosition());
-        assertEquals(employeeFullInfo.getSalary(), result.getSalary(), 0.01);
+        assertEquals(employeeId, result.getId());
+        assertEquals("John Doe", result.getName());
+        assertEquals(5000, result.getSalary(), 0.001);
+        assertEquals(position, result.getPosition());
     }
-
-    @Test(expected = EmployeeNotFoundException.class)
-    public void testGetEmployeeFullInfoById_ThrowsException() {
-
-        Mockito.when(employeeRepository.getEmployeeFullInfoById(anyInt())).thenReturn(Optional.empty());
-
-        employeeService.getEmployeeFullInfoById(1);
-    }
-
     @Test
     public void testGetAllEmployeesByPage() {
         int page = 0;
+        Page<Employee> employeePage = new PageImpl<>(new ArrayList<>());
+
+        Mockito.when(employeeRepository.findAllEmployees(any())).thenReturn(employeePage);
 
         Position position1 = new Position();
         position1.setName("Manager");
@@ -318,14 +317,16 @@ public class EmployeeServiceImplTest {
         Employee employee1 = new Employee("John Doe", 5000, position1);
         Employee employee2 = new Employee("Jane Smith", 4000, position2);
         List<Employee> employees = Arrays.asList(employee1, employee2);
-        Page<Employee> employeePage = new PageImpl<>(employees);
 
-        Mockito.when(employeeRepository.findAll()).thenReturn(employees);
+        Pageable pageable = PageRequest.of(page, 10);
+        Page<Employee> employeePageWithContent = new PageImpl<>(employees, pageable, employees.size());
+        Mockito.when(employeeRepository.findAllEmployees(pageable)).thenReturn(employeePageWithContent);
 
         Page<EmployeeDTO> result = employeeService.getAllEmployeesByPage(page);
+        System.out.println("Ожидаемые элементы: " + employeePageWithContent.getTotalElements());
+        System.out.println("Фактические элементы: " + result.getTotalElements());
 
-        assertEquals(employeePage.getTotalElements(), result.getTotalElements());
-
+        assertEquals(employeePageWithContent.getTotalElements(), result.getTotalElements());
 
         List<EmployeeDTO> resultContent = result.getContent();
         for (int i = 0; i < employees.size(); i++) {

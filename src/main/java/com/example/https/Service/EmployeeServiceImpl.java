@@ -50,11 +50,22 @@ public class EmployeeServiceImpl implements EmployeeService {
                 .orElseThrow(() -> new EmployeeNotFoundException("Employee not found with id: " + id));
         return convertToDTO(employee);
     }
+
     @Override
     public EmployeeDTO createEmployee(EmployeeDTO employeeDTO) {
         logger.info("Invoking createEmployee method with employee: " + employeeDTO);
         Employee employee = convertToEntity(employeeDTO);
+
+        // Получить позицию из репозитория по ее идентификатору
+        Position position = positionRepository.findById(employeeDTO.getPositionId())
+                .orElseThrow(() -> new PositionNotFoundException("Position not found with id: " + employeeDTO.getPositionId()));
+
+        // Установить позицию для сотрудника
+        employee.setPosition(position);
+
+        // Сохранить сотрудника
         employeeRepository.save(employee);
+
         return convertToDTO(employee);
     }
 
@@ -106,6 +117,7 @@ public class EmployeeServiceImpl implements EmployeeService {
                     return new PositionNotFoundException(errorMessage);
                 });
 
+
         List<Employee> employees = position.getEmployees();
         return employees.stream()
                 .map(this::convertToDTO)
@@ -144,9 +156,9 @@ public class EmployeeServiceImpl implements EmployeeService {
 
     @Override
     public Page<EmployeeDTO> getAllEmployeesByPage(int page) {
-        logger.info("Invoking getAllEmployeesByPage method with page: " + page);
-        PageRequest pageable =  PageRequest.of(page, 10);
-        Page<Employee> employeePage = employeeRepository.findAllEmployees((org.springframework.data.domain.Pageable) pageable);
+        logger.info("Вызов метода getAllEmployeesByPage с параметром страницы: " + page);
+        PageRequest pageable = PageRequest.of(page, 10);
+        Page<Employee> employeePage = employeeRepository.findAllEmployees(pageable);
         return employeePage.map(this::convertToDTO);
     }
 

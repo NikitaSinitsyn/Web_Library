@@ -7,6 +7,8 @@ import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.util.Objects;
+
 @AllArgsConstructor
 @Getter
 @Setter
@@ -16,10 +18,23 @@ public class EmployeeDTO {
     private String name;
     private double salary;
     private Position position;
+    private int positionId;
 
     public EmployeeDTO() {
 
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        EmployeeDTO that = (EmployeeDTO) o;
+        return id == that.id && Double.compare(that.salary, salary) == 0 && positionId == that.positionId && Objects.equals(name, that.name) && Objects.equals(position, that.position);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id, name, salary, position, positionId);
+    }
 
 }
