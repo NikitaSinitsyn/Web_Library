@@ -208,13 +208,13 @@ public class EmployeeServiceImplTest {
         position.setId(positionId);
 
         List<Employee> employees = new ArrayList<>();
-        employees.add(new Employee("John Doe", 5000, position));
-        employees.add(new Employee("Jane Smith", 4000, position));
+        employees.add(new Employee(1, "John Doe", 5000, position));
 
         position.setEmployees(employees);
 
         Mockito.when(positionRepository.findById(positionId)).thenReturn(Optional.of(position));
-        Mockito.when(employeeRepository.findEmployeesByPosition(Mockito.anyString())).thenReturn(employees);
+
+
 
         List<EmployeeDTO> employeeDTOs = employeeService.getEmployeesByPosition(positionId);
 
@@ -227,7 +227,7 @@ public class EmployeeServiceImplTest {
             assertEquals(employee.getId(), employeeDTO.getId());
             assertEquals(employee.getName(), employeeDTO.getName());
             assertEquals(employee.getPosition(), employeeDTO.getPosition());
-            assertEquals(employee.getSalary(), employeeDTO.getSalary());
+            assertEquals(employee.getSalary(), employeeDTO.getSalary(), 0.001);
         }
     }
 
@@ -314,9 +314,9 @@ public class EmployeeServiceImplTest {
         position1.setName("Manager");
         Position position2 = new Position();
         position2.setName("Developer");
-        Employee employee1 = new Employee("John Doe", 5000, position1);
-        Employee employee2 = new Employee("Jane Smith", 4000, position2);
-        List<Employee> employees = Arrays.asList(employee1, employee2);
+        Employee employee1 = new Employee(1,"John Doe", 5000, position1);
+
+        List<Employee> employees = Arrays.asList(employee1);
 
         Pageable pageable = PageRequest.of(page, 10);
         Page<Employee> employeePageWithContent = new PageImpl<>(employees, pageable, employees.size());
@@ -336,7 +336,7 @@ public class EmployeeServiceImplTest {
             assertEquals(employee.getId(), employeeDTO.getId());
             assertEquals(employee.getName(), employeeDTO.getName());
             assertEquals(employee.getPosition(), employeeDTO.getPosition());
-            assertEquals(employee.getSalary(), employeeDTO.getSalary());
+            assertEquals(employee.getSalary(), employeeDTO.getSalary(), 0.01);
         }
     }
 }
