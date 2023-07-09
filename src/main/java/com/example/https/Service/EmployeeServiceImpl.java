@@ -16,7 +16,6 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
-import java.awt.print.Pageable;
 import java.util.List;
 import java.util.Optional;
 
@@ -34,12 +33,13 @@ public class EmployeeServiceImpl implements EmployeeService {
     private final ModelMapper modelMapper;
 
 
+
     @Override
     public List<EmployeeDTO> getAllEmployees() {
         logger.info("Invoking getAllEmployees method");
         List<Employee> employees = employeeRepository.findAll();
         return employees.stream()
-                .map(this::convertToDTO)
+                .map(this::mapToEmployeeDTO)
                 .collect(Collectors.toList());
     }
 
@@ -52,14 +52,25 @@ public class EmployeeServiceImpl implements EmployeeService {
     }
 
     @Override
-    public void createEmployee(EmployeeDTO employeeDTO) {
+    public EmployeeDTO createEmployee(EmployeeDTO employeeDTO) {
         logger.info("Invoking createEmployee method with employee: " + employeeDTO);
         Employee employee = convertToEntity(employeeDTO);
+
+        // Получить позицию из репозитория по ее идентификатору
+        Position position = positionRepository.findById(employeeDTO.getPositionId())
+                .orElseThrow(() -> new PositionNotFoundException("Position not found with id: " + employeeDTO.getPositionId()));
+
+        // Установить позицию для сотрудника
+        employee.setPosition(position);
+
+        // Сохранить сотрудника
         employeeRepository.save(employee);
+
+        return convertToDTO(employee);
     }
 
     @Override
-    public void updateEmployee(int id, EmployeeDTO employeeDTO) {
+    public EmployeeDTO updateEmployee(int id, EmployeeDTO employeeDTO) {
         logger.info("Invoking updateEmployee method with id: " + id + ", employee: " + employeeDTO);
         Employee existingEmployee = employeeRepository.findById(id)
                 .orElseThrow(() -> {
@@ -72,6 +83,7 @@ public class EmployeeServiceImpl implements EmployeeService {
         updatedEmployee.setId(existingEmployee.getId());
 
         employeeRepository.save(updatedEmployee);
+        return employeeDTO;
     }
 
     @Override
@@ -104,6 +116,7 @@ public class EmployeeServiceImpl implements EmployeeService {
                     logger.error(errorMessage);
                     return new PositionNotFoundException(errorMessage);
                 });
+
 
         List<Employee> employees = position.getEmployees();
         return employees.stream()
@@ -143,13 +156,15 @@ public class EmployeeServiceImpl implements EmployeeService {
 
     @Override
     public Page<EmployeeDTO> getAllEmployeesByPage(int page) {
-        logger.info("Invoking getAllEmployeesByPage method with page: " + page);
-        Pageable pageable = (Pageable) PageRequest.of(page, 10);
-        Page<Employee> employeePage = employeeRepository.findAllEmployees((org.springframework.data.domain.Pageable) pageable);
+        logger.info("Вызов метода getAllEmployeesByPage с параметром страницы: " + page);
+        PageRequest pageable = PageRequest.of(page, 10);
+        Page<Employee> employeePage = employeeRepository.findAllEmployees(pageable);
         return employeePage.map(this::convertToDTO);
     }
+
     private EmployeeDTO mapToEmployeeDTO(Employee employee) {
         EmployeeDTO employeeDTO = new EmployeeDTO();
+        employeeDTO.setId(employee.getId());
         employeeDTO.setName(employee.getName());
         employeeDTO.setSalary(employee.getSalary());
         employeeDTO.setPosition(employee.getPosition());

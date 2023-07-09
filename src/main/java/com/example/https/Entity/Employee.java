@@ -28,6 +28,19 @@ public class Employee {
     @JoinColumn(name = "department_id")
     private Department department;
 
+    public Employee(@NonNull() int id, String name, double salary, Position position) {
+        this.id = id;
+        this.name = name;
+        this.salary = salary;
+        this.position = position;
+    }
+
+    public Employee(String name, double salary, Position position) {
+        this.name = name;
+        this.salary = salary;
+        this.position = position;
+    }
+
 
     @Override
     public String toString() {

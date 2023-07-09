@@ -10,8 +10,8 @@ import java.util.List;
 public interface EmployeeService {
     List<EmployeeDTO> getAllEmployees();
     EmployeeDTO getEmployeeById(int id);
-    void createEmployee(EmployeeDTO employeeDTO);
-    void updateEmployee(int id, EmployeeDTO employeeDTO);
+    EmployeeDTO createEmployee(EmployeeDTO employeeDTO);
+    EmployeeDTO updateEmployee(int id, EmployeeDTO employeeDTO);
     void deleteEmployee(int id);
 
     List<EmployeeDTO> getEmployeesByPosition(int positionId);
