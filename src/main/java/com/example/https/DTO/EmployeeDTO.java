@@ -24,6 +24,12 @@ public class EmployeeDTO {
 
     }
 
+    public EmployeeDTO(int id, String name, double salary) {
+        this.id = id;
+        this.name = name;
+        this.salary = salary;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;

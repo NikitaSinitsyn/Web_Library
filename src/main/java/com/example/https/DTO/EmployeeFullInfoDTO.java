@@ -16,5 +16,9 @@ public class EmployeeFullInfoDTO {
     private double salary;
     private Position position;
 
-
+    public EmployeeFullInfoDTO(int id, String name, double salary) {
+        this.id = id;
+        this.name = name;
+        this.salary = salary;
+    }
 }
