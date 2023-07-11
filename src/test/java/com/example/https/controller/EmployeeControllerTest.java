@@ -28,6 +28,7 @@ import java.util.List;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -87,11 +88,16 @@ public class EmployeeControllerTest {
 
     @Test
     public void getEmployeeById_ReturnsEmployee() throws Exception {
-        // Создание объекта Employee
-        Employee employee = new Employee();
+        Position position = new Position();
+        position.setName("Manager");
+        positionRepository.save(position);
+        EmployeeDTO employee = new EmployeeDTO();
         employee.setId(1);
         employee.setName("John Doe");
         employee.setSalary(5000.0);
+        employee.setPosition(position);
+
+        employeeService.createEmployee(employee);
 
         // Задание ожидаемого поведения сервиса
         EmployeeDTO employeeDTO = new EmployeeDTO(employee.getId(), employee.getName(), employee.getSalary());
@@ -104,6 +110,7 @@ public class EmployeeControllerTest {
                 .andExpect(jsonPath("$.name").value("John Doe"))
                 .andExpect(jsonPath("$.salary").value(5000.0));
     }
+
 
     @Test
     public void getEmployeesByPosition_ReturnsEmployeeList() throws Exception {
@@ -126,7 +133,7 @@ public class EmployeeControllerTest {
         // Задание ожидаемого поведения сервиса
         List<EmployeeDTO> employeeDTOList = new ArrayList<>();
         employeeDTOList.add(new EmployeeDTO(employee.getId(), employee.getName(), employee.getSalary()));
-        when(positionRepository.findById(position.getId())).thenReturn(Optional.of(position));
+        when(positionRepository.findById(any())).thenReturn(Optional.of(position));
         when(employeeService.getEmployeesByPosition(position.getId())).thenReturn(employeeDTOList);
 
         // Выполнение GET-запроса к эндпоинту /employee/position/{positionId}

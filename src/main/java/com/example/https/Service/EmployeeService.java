@@ -3,6 +3,7 @@ package com.example.https.Service;
 
 import com.example.https.DTO.EmployeeDTO;
 import com.example.https.DTO.EmployeeFullInfoDTO;
+import com.example.https.Entity.Employee;
 import org.springframework.data.domain.Page;
 
 import java.util.List;
@@ -13,6 +14,7 @@ public interface EmployeeService {
     EmployeeDTO createEmployee(EmployeeDTO employeeDTO);
     EmployeeDTO updateEmployee(int id, EmployeeDTO employeeDTO);
     void deleteEmployee(int id);
+     EmployeeDTO convertToDTO(Employee employee);
 
     List<EmployeeDTO> getEmployeesByPosition(int positionId);
 

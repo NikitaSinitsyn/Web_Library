@@ -6,6 +6,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.util.List;
+import java.util.Objects;
 
 @Entity
 @Table(name = "position")
@@ -39,5 +40,8 @@ public class Position {
         }
     }
 
-
+    @Override
+    public int hashCode() {
+        return Objects.hash(id, name, employees);
+    }
 }
