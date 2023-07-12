@@ -24,6 +24,12 @@ public class Position {
 
     @OneToMany(mappedBy = "position")
     private List<Employee> employees;
+
+    public Position(int id, String name) {
+        this.id = id;
+        this.name = name;
+    }
+
     @Override
     public boolean equals(Object obj) {
         if (this == obj)

@@ -12,6 +12,7 @@ import com.example.https.Repository.ReportRepository;
 import com.example.https.Service.EmployeeService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.ArgumentMatchers;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -19,6 +20,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.ActiveProfiles;
+import org.springframework.test.context.jdbc.Sql;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 
@@ -113,31 +115,16 @@ public class EmployeeControllerTest {
 
 
     @Test
+    @Sql(scripts = {"/test-data.sql"})
     public void getEmployeesByPosition_ReturnsEmployeeList() throws Exception {
-        // Создание объектов Department, Position и Employee
-        Department department = new Department();
-        department.setId(1);
-        department.setName("IT");
-
-        Position position = new Position();
-        position.setId(1);
-        position.setName("Software Developer");
-
-        Employee employee = new Employee();
-        employee.setId(1);
-        employee.setName("John Doe");
-        employee.setSalary(5000.0);
-        employee.setPosition(position);
-        employee.setDepartment(department);
-
         // Задание ожидаемого поведения сервиса
         List<EmployeeDTO> employeeDTOList = new ArrayList<>();
-        employeeDTOList.add(new EmployeeDTO(employee.getId(), employee.getName(), employee.getSalary()));
-        when(positionRepository.findById(any())).thenReturn(Optional.of(position));
-        when(employeeService.getEmployeesByPosition(position.getId())).thenReturn(employeeDTOList);
+        employeeDTOList.add(new EmployeeDTO(1, "John Doe", 5000.0));
+        when(positionRepository.findById(ArgumentMatchers.any())).thenReturn(Optional.of(new Position(1, "Software Developer")));
+        when(employeeService.getEmployeesByPosition(1)).thenReturn(employeeDTOList);
 
         // Выполнение GET-запроса к эндпоинту /employee/position/{positionId}
-        mockMvc.perform(get("/employee/position/{positionId}", position.getId())
+        mockMvc.perform(get("/employee/position/{positionId}", 1)
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.length()").value(1))
@@ -239,7 +226,7 @@ public class EmployeeControllerTest {
                 new EmployeeDTO(employee1.getId(), employee1.getName(), employee1.getSalary()),
                 new EmployeeDTO(employee2.getId(), employee2.getName(), employee2.getSalary())
         ));
-        when(employeeService.getAllEmployeesByPage(anyInt())).thenReturn(employeeDTOPage);
+        when(employeeService.getAllEmployeesByPage(0)).thenReturn(employeeDTOPage);
 
         // Выполнение GET-запроса к эндпоинту /employee/page
         mockMvc.perform(get("/employee/page")
