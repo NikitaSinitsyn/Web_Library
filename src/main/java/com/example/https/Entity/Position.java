@@ -50,4 +50,13 @@ public class Position {
     public int hashCode() {
         return Objects.hash(id, name, employees);
     }
+
+    @Override
+    public String toString() {
+        return "Position{" +
+                "id=" + id +
+                ", name='" + name + '\'' +
+                ", employees=" + employees +
+                '}';
+    }
 }
