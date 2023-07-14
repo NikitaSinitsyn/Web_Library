@@ -1,5 +1,8 @@
 package com.example.https.Entity;
 
+import com.example.https.AppConfig.PositionSerializer;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -13,6 +16,7 @@ import java.util.Objects;
 @Getter
 @Setter
 @NoArgsConstructor
+@JsonSerialize(using = PositionSerializer.class)
 public class Position {
 
     @Id
@@ -23,6 +27,7 @@ public class Position {
     private String name;
 
     @OneToMany(mappedBy = "position")
+    @JsonIgnore
     private List<Employee> employees;
 
     public Position(int id, String name) {

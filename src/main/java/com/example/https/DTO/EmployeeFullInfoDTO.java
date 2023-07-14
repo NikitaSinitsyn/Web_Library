@@ -17,11 +17,20 @@ public class EmployeeFullInfoDTO {
     private String name;
     private double salary;
     private Position position;
+    private String department;
 
     public EmployeeFullInfoDTO(int id, String name, double salary) {
         this.id = id;
         this.name = name;
         this.salary = salary;
+    }
+
+    public EmployeeFullInfoDTO(int id, String name, double salary, Position position, String department) {
+        this.id = id;
+        this.name = name;
+        this.salary = salary;
+        this.position = position;
+        this.department = department;
     }
 
     @Override

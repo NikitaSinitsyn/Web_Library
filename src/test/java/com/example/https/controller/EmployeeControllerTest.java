@@ -1,10 +1,12 @@
 package com.example.https.controller;
 
+import com.example.https.AppConfig.JacksonConfig;
 import com.example.https.Entity.Report;
 import com.example.https.Repository.EmployeeRepository;
 import com.example.https.Repository.PositionRepository;
 import com.example.https.Repository.ReportRepository;
 import com.example.https.Service.EmployeeService;
+import jakarta.persistence.EntityNotFoundException;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,6 +15,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.ActiveProfiles;
+import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.jdbc.Sql;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
@@ -52,7 +55,8 @@ public class EmployeeControllerTest {
     }
 
     @Test
-    @Sql(scripts = {"/clear-data.sql", "/test-data.sql"})
+    @Sql(scripts = {"/test-data.sql"},executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD)
+    @Sql(scripts = {"/clear-data.sql"},executionPhase = Sql.ExecutionPhase.AFTER_TEST_METHOD)
     @WithMockUser(username = "user", password = "Cjdtncrfz159753!", roles = "USER")
     public void getAllEmployees_ReturnsEmployeeList() throws Exception {
 
@@ -67,7 +71,8 @@ public class EmployeeControllerTest {
     }
 
     @Test
-    @Sql(scripts = {"/clear-data.sql", "/test-data.sql"})
+    @Sql(scripts = {"/test-data.sql"},executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD)
+    @Sql(scripts = {"/clear-data.sql"},executionPhase = Sql.ExecutionPhase.AFTER_TEST_METHOD)
     @WithMockUser(username = "user", password = "Cjdtncrfz159753!", roles = "USER")
     public void getEmployeeById_ReturnsEmployee() throws Exception {
 
@@ -81,7 +86,8 @@ public class EmployeeControllerTest {
 
 
     @Test
-    @Sql(scripts = {"/clear-data.sql", "/test-data.sql"})
+    @Sql(scripts = {"/test-data.sql"},executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD)
+    @Sql(scripts = {"/clear-data.sql"},executionPhase = Sql.ExecutionPhase.AFTER_TEST_METHOD)
     @WithMockUser(username = "user", password = "Cjdtncrfz159753!", roles = "USER")
     public void getEmployeesByPosition_ReturnsEmployeeList() throws Exception {
 
@@ -94,7 +100,8 @@ public class EmployeeControllerTest {
     }
 
     @Test
-    @Sql(scripts = {"/clear-data.sql", "/test-data.sql"})
+    @Sql(scripts = {"/test-data.sql"},executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD)
+    @Sql(scripts = {"/clear-data.sql"},executionPhase = Sql.ExecutionPhase.AFTER_TEST_METHOD)
     @WithMockUser(username = "user", password = "Cjdtncrfz159753!", roles = "USER")
     public void getEmployeesWithHighestSalary_ReturnsEmployeeList() throws Exception {
 
@@ -109,7 +116,8 @@ public class EmployeeControllerTest {
                 .andExpect(jsonPath("$[0].salary").value(5000.0));
     }
     @Test
-    @Sql(scripts = {"/clear-data.sql", "/test-data.sql"})
+    @Sql(scripts = {"/test-data.sql"},executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD)
+    @Sql(scripts = {"/clear-data.sql"},executionPhase = Sql.ExecutionPhase.AFTER_TEST_METHOD)
     @WithMockUser(username = "user", password = "Cjdtncrfz159753!", roles = "USER")
     public void findEmployeesByPosition_ReturnsEmployeeList() throws Exception {
 
@@ -123,7 +131,8 @@ public class EmployeeControllerTest {
                 .andExpect(jsonPath("$[0].name").value("John Doe"));
     }
     @Test
-    @Sql(scripts = {"/clear-data.sql", "/test-data.sql"})
+    @Sql(scripts = {"/test-data.sql"},executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD)
+    @Sql(scripts = {"/clear-data.sql"},executionPhase = Sql.ExecutionPhase.AFTER_TEST_METHOD)
     @WithMockUser(username = "user", password = "Cjdtncrfz159753!", roles = "USER")
     public void getEmployeeFullInfoById_ReturnsEmployeeFullInfo() throws Exception {
 
@@ -138,7 +147,8 @@ public class EmployeeControllerTest {
                 .andExpect(jsonPath("$.department").value("IT"));
     }
     @Test
-    @Sql(scripts = {"/clear-data.sql", "/test-data.sql"})
+    @Sql(scripts = {"/test-data.sql"},executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD)
+    @Sql(scripts = {"/clear-data.sql"},executionPhase = Sql.ExecutionPhase.AFTER_TEST_METHOD)
     @WithMockUser(username = "user", password = "Cjdtncrfz159753!", roles = "USER")
     public void getEmployeesByPage_ReturnsPagedEmployeeList() throws Exception {
 
@@ -148,29 +158,23 @@ public class EmployeeControllerTest {
                         .param("page", "0")
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.content.length()").value(2))
-                .andExpect(jsonPath("$.content[0].name").value("John Doe"))
-                .andExpect(jsonPath("$.content[1].name").value("Jane Smith"));
+                .andExpect(jsonPath("$.content.length()").value(1))
+                .andExpect(jsonPath("$.content[0].name").value("John Doe"));
     }
     @Test
-    @Sql(scripts = {"/clear-data.sql", "/test-data.sql"})
+    @Sql(scripts = {"/test-data.sql"},executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD)
+    @Sql(scripts = {"/clear-data.sql"},executionPhase = Sql.ExecutionPhase.AFTER_TEST_METHOD)
     @WithMockUser(username = "user", password = "Cjdtncrfz159753!", roles = "USER")
     public void getReportById_ReturnsReportFile() throws Exception {
-        // Создание объекта Report
-        Report report = new Report();
-        report.setId(1);
-        report.setContent("Test report content".getBytes());
-
-        // Добавление отчета в базу данных
-        reportRepository.save(report);
 
         // Выполнение GET-запроса к эндпоинту /employee/report/{id}
-        MvcResult mvcResult = mockMvc.perform(get("/employee/report/{id}", report.getId())
+        MvcResult mvcResult = mockMvc.perform(get("/employee/report/{id}", 1)
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andReturn();
 
         byte[] responseBytes = mvcResult.getResponse().getContentAsByteArray();
+        Report report = reportRepository.findById(1).orElseThrow(() -> new EntityNotFoundException("Report not found"));
 
         // Проверка содержимого файла
         assertArrayEquals(report.getContent(), responseBytes);

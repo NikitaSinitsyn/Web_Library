@@ -1,8 +1,8 @@
--- Удаление таблицы "newEmployee"
-DROP TABLE IF EXISTS newEmployee CASCADE ;
+-- Удаление данных из таблицы "new_employee"
+DELETE FROM new_employee;
 
--- Удаление таблицы "position"
-DROP TABLE  IF EXISTS position CASCADE ;
+-- Удаление данных из таблицы "position"
+DELETE FROM position;
 
--- Удаление таблицы "department"
-DROP TABLE IF EXISTS departmen CASCADE ;
+-- Удаление данных из таблицы "department"
+DELETE FROM department;
