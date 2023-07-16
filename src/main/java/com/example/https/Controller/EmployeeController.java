@@ -56,8 +56,8 @@ public class EmployeeController {
     }
 
     @GetMapping("/FindByPosition")
-    public ResponseEntity<List<EmployeeDTO>> findEmployeesByPosition(@RequestParam(value = "position", required = false) int position) {
-        List<EmployeeDTO> employees = employeeService.findEmployeesByPosition(String.valueOf(position));
+    public ResponseEntity<List<EmployeeDTO>> findEmployeesByPosition(@RequestParam(value = "position", required = false) String position) {
+        List<EmployeeDTO> employees = employeeService.findEmployeesByPosition((position));
         return ResponseEntity.ok(employees);
     }
 

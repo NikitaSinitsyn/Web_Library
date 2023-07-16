@@ -38,6 +38,7 @@ public class Report {
     private Department department;
 
     @Lob
+    @Column(columnDefinition = "BYTEA")
     private byte[] content;
 
     @Override
