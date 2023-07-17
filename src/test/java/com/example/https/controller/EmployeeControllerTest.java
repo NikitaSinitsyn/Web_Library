@@ -1,32 +1,23 @@
 package com.example.https.controller;
 
-import com.example.https.AppConfig.JacksonConfig;
-import com.example.https.Controller.AdminEmployeeController;
 import com.example.https.Entity.Report;
-import com.example.https.Repository.EmployeeRepository;
-import com.example.https.Repository.PositionRepository;
 import com.example.https.Repository.ReportRepository;
-import com.example.https.Service.EmployeeService;
 import jakarta.persistence.EntityNotFoundException;
-import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.ActiveProfiles;
-import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.jdbc.Sql;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
-import org.springframework.web.context.WebApplicationContext;
 
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -36,29 +27,10 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 public class EmployeeControllerTest {
     @Autowired
     private MockMvc mockMvc;
-    @Autowired
-    private WebApplicationContext context;
 
-    @Autowired
-    private EmployeeService employeeService;
-
-    @Autowired
-    private EmployeeRepository employeeRepository;
-
-    @Autowired
-    private PositionRepository positionRepository;
     @Autowired
     private ReportRepository reportRepository;
-    @Autowired
-    private AdminEmployeeController adminEmployeeController;
 
-
-
-
-    @AfterEach
-    public void cleanData() {
-        employeeRepository.deleteAll();
-    }
 
     @Test
     @Sql(scripts = {"/test-data.sql"},executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD)
@@ -168,23 +140,28 @@ public class EmployeeControllerTest {
                 .andExpect(jsonPath("$.content[0].name").value("John Doe"));
     }
     @Test
-    @Sql(scripts = {"/test-data.sql"},executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD)
-    @Sql(scripts = {"/clear-data.sql"},executionPhase = Sql.ExecutionPhase.AFTER_TEST_METHOD)
-    @WithMockUser(username = "user", password = "Cjdtncrfz159753!", roles = "ADMIN")
-    public void getReportById_ReturnsReportFile() throws Exception {
-
-
-        ResponseEntity<Integer> responseEntity = adminEmployeeController.generateReport();
-        assertEquals(HttpStatus.OK, responseEntity.getStatusCode());
-        int fileId = responseEntity.getBody();
-
-        MvcResult mvcResult = mockMvc.perform(get("/employee/report/{id}", fileId)
+    @Sql(scripts = {"/test-data.sql"}, executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD)
+    @Sql(scripts = {"/clear-data.sql"}, executionPhase = Sql.ExecutionPhase.AFTER_TEST_METHOD)
+    @WithMockUser(username = "user", password = "Cjdtncrfz159753!", roles = "USER")
+    public void generateAndRetrieveReport_ReturnsReportFile() throws Exception {
+        // Генерация отчета
+        MvcResult generateResult = mockMvc.perform(post("/employee/report")
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andReturn();
 
-        byte[] responseBytes = mvcResult.getResponse().getContentAsByteArray();
-        Report report = reportRepository.findById(fileId).orElseThrow(() -> new EntityNotFoundException("Report not found"));
+        int fileId = Integer.parseInt(generateResult.getResponse().getContentAsString());
+        assertTrue(fileId > 0);
+
+        // Получение отчета по его идентификатору
+        MvcResult getResult = mockMvc.perform(get("/employee/report/{id}", fileId)
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andReturn();
+
+        byte[] responseBytes = getResult.getResponse().getContentAsByteArray();
+        Report report = reportRepository.findById(fileId)
+                .orElseThrow(() -> new EntityNotFoundException("Report not found"));
 
         // Проверка содержимого файла
         assertArrayEquals(report.getContent(), responseBytes);

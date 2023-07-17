@@ -1,5 +1,6 @@
 package com.example.https.Entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -35,6 +36,7 @@ public class Report {
 
     @ManyToOne
     @JoinColumn(name = "department_id")
+    @JsonIgnore
     private Department department;
 
     @Lob
