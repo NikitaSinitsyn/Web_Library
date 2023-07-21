@@ -19,10 +19,10 @@ public interface EmployeeRepository extends JpaRepository<Employee, Integer> {
     @Query("SELECT e FROM Employee e WHERE e.salary = (SELECT MAX(emp.salary) FROM Employee emp)")
     List<Employee> getEmployeesWithHighestSalary();
 
-    @Query("SELECT e FROM Employee e WHERE e.position = :position")
+    @Query("SELECT e FROM Employee e WHERE e.position.name = :position")
     List<Employee> findEmployeesByPosition(@Param("position") String position);
 
-    @Query("SELECT e.id, e.name, e.salary, e.position FROM Employee e WHERE e.id = :id")
+    @Query("SELECT new com.example.https.DTO.EmployeeFullInfoDTO(e.id, e.name, e.salary, e.position, e.department.name) FROM Employee e WHERE e.id = :id")
     Optional<EmployeeFullInfoDTO> getEmployeeFullInfoById(@Param("id") int id);
 
     @Query(value = "SELECT e FROM Employee e",

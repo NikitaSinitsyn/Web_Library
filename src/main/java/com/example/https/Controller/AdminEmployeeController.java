@@ -80,19 +80,7 @@ public class AdminEmployeeController {
     }
 
 
-    @PostMapping("/report")
-    public ResponseEntity<Integer> generateReport() {
-        try {
-            List<Report> reports = generateDepartmentStatistics();
-            String jsonReport = convertToJson(reports);
 
-            int fileId = saveReportToDatabase(jsonReport);
-
-            return ResponseEntity.ok(fileId);
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
-        }
-    }
 
     private List<Employee> readEmployeesFromJson(FileInputStream inputStream) throws IOException {
         ObjectMapper objectMapper = new ObjectMapper();
@@ -101,57 +89,6 @@ public class AdminEmployeeController {
         return employees;
     }
 
-    private List<Report> generateDepartmentStatistics() {
-        List<Report> reports = new ArrayList<>();
 
-        // Получение списка всех отделов из базы данных
-        List<Department> departments = departmentRepository.findAll();
-
-        for (Department department : departments) {
-            Report report = new Report();
-            report.setDepartment(department);
-            report.setDepartmentName(department.getName());
-
-            // Получение списка сотрудников для текущего отдела из базы данных
-            List<Employee> employees = employeeRepository.findByDepartment(department);
-
-            report.setEmployeeCount(employees.size());
-
-            // Расчет максимальной, минимальной и средней зарплаты
-            double maxSalary = Double.MIN_VALUE;
-            double minSalary = Double.MAX_VALUE;
-            double totalSalary = 0.0;
-
-            for (Employee employee : employees) {
-                double salary = employee.getSalary();
-                maxSalary = Math.max(maxSalary, salary);
-                minSalary = Math.min(minSalary, salary);
-                totalSalary += salary;
-            }
-
-            double averageSalary = totalSalary / employees.size();
-
-            report.setMaxSalary(maxSalary);
-            report.setMinSalary(minSalary);
-            report.setAverageSalary(averageSalary);
-
-            reports.add(report);
-        }
-
-        return reports;
-    }
-    private String convertToJson(List<Report> reports) throws JsonProcessingException {
-        ObjectMapper objectMapper = new ObjectMapper();
-        return objectMapper.writeValueAsString(reports);
-    }
-
-    private int saveReportToDatabase(String jsonReport) {
-        Report report = new Report();
-        report.setContent(jsonReport.getBytes());
-
-
-        Report savedReport = reportRepository.save(report);
-        return savedReport.getId();
-    }
 
 }

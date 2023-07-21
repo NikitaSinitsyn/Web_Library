@@ -99,11 +99,11 @@ public class EmployeeServiceImpl implements EmployeeService {
         employeeRepository.delete(employee);
     }
 
-    private EmployeeDTO convertToDTO(Employee employee) {
+    public EmployeeDTO convertToDTO(Employee employee) {
         return modelMapper.map(employee, EmployeeDTO.class);
     }
 
-    private Employee convertToEntity(EmployeeDTO employeeDTO) {
+    public Employee convertToEntity(EmployeeDTO employeeDTO) {
         return modelMapper.map(employeeDTO, Employee.class);
     }
 
@@ -136,6 +136,8 @@ public class EmployeeServiceImpl implements EmployeeService {
         List<Employee> employees = employeeRepository.findEmployeesByPosition(position);
         return mapToEmployeeDTOs(employees);
     }
+
+
 
     private List<EmployeeDTO> mapToEmployeeDTOs(List<Employee> employees) {
         return employees.stream()
